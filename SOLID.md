@@ -1,6 +1,15 @@
 <h1 align="center">S.O.L.I.D</h1>
 
-Os princípios **S.O.L.I.D** são um conjunto de cinco diretrizes para ajudar a escrever código de forma mais organizada.
+**S.O.L.I.D** são um conjunto de cinco princípios para ajudar a escrever código de forma mais organizada.
+
+Os 5 principios são:
+
+- [Single Responsibility](#single-responsibility)
+- [Open/Closed](#openclosed)
+- [Liskov Substitution](#liskov-substitution)
+- [Interface Segregation](#interface-segregation)
+- [Dependency Inversion](#dependency-inversion)
+
 
 <hr>
 <br>
@@ -21,7 +30,7 @@ Ex:
 
 ## Open/Closed
 
-O código deve estar aberto para extensão, mas fechado para modificação. Ou seja, você deve poder adicionar novas funcionalidades sem alterar o código existente, para evitar quebrar o que já está funcionando.
+A class deve estar aberta para extensão, mas fechada para modificação. Ou seja, você deve poder adicionar novas funcionalidades sem alterar o código existente, para evitar quebrar o que já está funcionando.
 
 <br>
 
@@ -214,34 +223,34 @@ Isso nao eh a melhor maneira. Vamos aplicar o open/closed principle agora.
     }
     ```
 
-<br>
+    <br>
 
-```java
-public class App{
-    public static void main(String args[]){
-        
-        List<MarkPrinter> shapes = List.of(
-            new DollarSign(),
-            new ExclamationMark(),
-            new QuestionMark(),
-            new PercentMark() //adicionamos um novo simbolo aqui
-        );
+    ```java
+    public class App{
+        public static void main(String args[]){
+            
+            List<MarkPrinter> shapes = List.of(
+                new DollarSign(),
+                new ExclamationMark(),
+                new QuestionMark(),
+                new PercentMark() //adicionamos um novo simbolo aqui
+            );
 
-        App.printAllShapes(shapes);
-    }
+            App.printAllShapes(shapes);
+        }
 
-         
-    //Ele está FECHADO para mdificacoes, mas está aberto para extenções.
-    public static void printAllShapes(List<MarkPrinter> shapes){
-        for(MarkPrinter i : shapes){
-            i.print();
+            
+        //Ele está FECHADO para mdificacoes, mas está aberto para extenções.
+        public static void printAllShapes(List<MarkPrinter> shapes){
+            for(MarkPrinter i : shapes){
+                i.print();
+            }
         }
     }
-}
-```
+    ```
 
 
-O method não foi alterado. 😎
+    O method não foi alterado. 😎
 
 
 <hr>
