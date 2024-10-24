@@ -10,7 +10,6 @@ Os 5 principios são:
 - [Interface Segregation](#interface-segregation)
 - [Dependency Inversion](#dependency-inversion)
 
-
 <hr>
 <br>
 
@@ -252,16 +251,229 @@ Isso nao eh a melhor maneira. Vamos aplicar o open/closed principle agora.
 
     O method não foi alterado. 😎
 
-
 <hr>
 <br>
 
 ## Liskov Substitution
+Qualquer classe filha pode ser usada no lugar da classe pai sem causar erros no código.
+
+Imagine o seguinte cenário:
+
+Vamos criar uma Class pai (superclass) **Animal** e algumas classes filhas:
+
+<br>
+
+### Sem utilizar o principle
+
+```java
+//Superclass
+public class Animal {
+    
+    public void fly(){
+        System.out.println("The animal is flying");
+    }
+}
+
+//classes filhas
+public class Eagle extends Animal {}
+
+public class Picapau extends Animal {}
+
+public class Crow extends Animal{}
+
+public class Lion extends Animal {}
+```
+
+<br>
+
+```java
+public class App {
+    public static void main(String[] args){
+        
+        Animal animal2 = new Eagle();
+        Animal animal3 = new Crow();
+        Animal animal4 = new Picapau();
+        Animal animal1 = new Lion();
+
+        animal1.fly();
+        animal2.fly();
+        animal3.fly();
+        animal4.fly(); // Lion is not supposed to fly - ERROR!!
+    }
+}
+```
+
+⚠️ Segundo o liskov substitution principle, a superclass pode ser substituída por qualquer classe filha. Nesse caso, um "leao" NÃO pode voar. Portanto, violamos o principle!
+
+Percebe que nem todo animal pode voar? Entao não faz sentido colocar esse method na classe pai. Faz mais sentido colocar esse method apenas nas classes filhas/animais, que podem voar.
+
+<br>
+
+### Utilizando o principle
+
+```java
+//superclass
+public class Animal {
+    
+    public void move(){
+        System.out.println("The animal is moving");
+    }
+}
+
+
+//classes filhas
+public class Eagle extends Animal {
+
+    public void fly(){
+        System.out.println("eagle is flying");
+    }
+}
+
+
+public class Picapau extends Animal {
+
+    public void fly(){
+        System.out.println("Picapau is flying");
+    }
+}
+
+public class Crow extends Animal{
+
+    public void fly(){
+        System.out.println("Crow is flying");
+    }
+}
+
+public class Lion extends Animal {}
+```
+
+<br>
+
+```java
+public class App {
+    public static void main(String[] args){
+        
+        Animal animal2 = new Eagle();
+        Animal animal3 = new Crow();
+        Animal animal4 = new Picapau();
+        Animal animal1 = new Lion();
+
+        //all animals can move
+        animal1.move();
+        animal2.move();
+        animal3.move();
+        animal4.move();
+    }
+}
+```
+
+📖 A classe pai contém apenas **métodos que todos os animais podem usar**. Métodos específicos, como fly(), foram movidos para as classes que podem realmente executar essa ação. Isso respeita o princípio e evita erros no código.
+
 
 <hr>
 <br>
 
 ## Interface Segregation
+**Uma classe não deve ser obrigada a usar métodos de uma interface que não precisa.** É melhor ter várias interfaces menores e específicas, permitindo que as classes implementem apenas o que realmente precisam. Isso deixa o código mais organizado e fácil de entender.
+
+Exemplo:
+
+### Sem utilizar o principle
+
+Temos uma interface "grande" com todos os methods relacionados a "phone"
+
+```java
+public interface PhoneFunctionalities{
+    
+    public void call();
+
+    public void whatsaAppMessage(String message);
+}
+```
+
+<br>
+
+```java
+public class SmartPhone implements PhoneFunctionalities{
+    @Override
+    public void call() {
+        System.out.println("SmartPhone is calling to someone");
+    }
+
+    @Override
+    public void whatsaAppMessage(String message) {
+        System.out.println(message);
+    }
+}
+
+
+public class OldPhone implements PhoneFunctionalities{
+
+    @Override
+    public void call() {
+        System.out.println("old phone is calling to someone");
+    }
+
+    //mesmo nao precisando desse method, somos OBRIGADOS a implementá-lo
+    @Override
+    public void whatsaAppMessage(String message) {
+        throw new RuntimeException("Old phone does not have WhatsApp");
+    }
+}
+```
+
+⚠️ Perceba que os "telefones antigos" não possuem serviços avançados. Eles apenas fazem e recebem ligações. Não faz sentido voce ser obrigado a implementar um method que voce nao vai utilizar naquela class.
+
+<br>
+
+### Utilizando o principle
+
+Aqui, vamos criar interfaces menores para atender as classes de forma específica
+
+```java
+//interface1
+public interface OldPhoneFunctionalities{
+    
+    public void call();
+}
+
+//interface2
+public interface SmartPhoneFunctionalities{
+    
+    public void call();
+    public void whatsaAppMessage(String message);
+}
+```
+
+<br>
+
+
+```java
+//class1
+public class SmartPhone implements SmartPhoneFunctionalities{
+    @Override
+    public void call() {
+        System.out.println("SmartPhone is calling to someone");
+    }
+
+    @Override
+    public void whatsaAppMessage(String message) {
+        System.out.println(message);
+    }
+}
+
+
+//class2
+public class OldPhone implements OldPhoneFunctionalities{
+
+    @Override
+    public void call() {
+        System.out.println("old phone is calling to someone");
+    }
+}
+```
+
+📖 Agora sim, não precisamos implementar methods que nao vamos usar.
 
 <hr>
 <br>
