@@ -255,7 +255,7 @@ Isso nao eh a melhor maneira. Vamos aplicar o open/closed principle agora.
 <br>
 
 ## Liskov Substitution
-Qualquer classe filha pode ser usada no lugar da classe pai sem causar erros no código.
+Qualquer classe filha pode ser usada no lugar da classe pai sem causar erros no código. Ou seja, a class pai deve ser o mais genérica possível.
 
 Imagine o seguinte cenário:
 
@@ -479,3 +479,202 @@ public class OldPhone implements OldPhoneFunctionalities{
 <br>
 
 ## Dependency Inversion
+O Princípio de Inversão de Dependência afirma que as classes de alto nível não devem depender de classes de baixo nível, **mas sim de abstrações, como interfaces**. Isso ajuda a tornar o código mais flexível e fácil de manter.
+
+<br>
+
+Exemplo:
+
+Imagine um programa que vai enviar mensagens para o cliente. A princípio temos as seguintes formas de enviar mensagens:
+
+`email`, `SMS`
+
+<br>
+
+### Sem utilizar o principle
+
+Aqui, definimos a mensagem padrao de cada tipo de notificacao.
+
+```java
+//class 1
+public class EmailNotifications {
+    
+    public String sendEmailMessage(){
+        return "EMAIL message insana!";
+    }
+}
+
+//class 2
+public class SmsNotifications {
+    
+    public String sendSmsMessage(){
+        return "SMS message insana!";
+    }
+}
+```
+
+<br>
+
+Aqui, vamos ter a class responsavel em de fato enviar a mensagem ao cliente.
+
+
+```java
+public class SendMessages {
+    
+    //attributes
+    private EmailNotifications emailNotifications; //essa class depende dessa Class "EmailNotifications"
+    private SmsNotifications smsNotifications; //essa class depende dessa Class "SmsNotifications"
+
+    //constructors
+    public SendMessages(){
+        this.emailNotifications = new EmailNotifications();
+        this.smsNotifications = new SmsNotifications();
+    }
+
+    //methods
+    public void enviarMensagemCompleta(String messageType){
+        System.out.println("Nova mensagem enviada!");
+
+        if(messageType.equals("SMS")){
+            System.out.println("Message: " + this.smsNotifications.sendSmsMessage());
+        }
+        if(messageType.equals("EMAIL")){
+            System.out.println("Message: " + this.emailNotifications.sendEmailMessage());
+        }
+    }
+}
+```
+
+⚠️ Perceba que essa class está DEPENDENDO das classes "EmailNotifications" e "SmsNotifications". Isso fere o principle.
+
+Se você quisesse criar outra forma de enviar uma notificacao ao cliente, exemplo por ligação, voce teria que adicionar mais um attribute nessa Class. E ela dependeria de mais 1 Class. Se ligou??
+
+<br>
+
+```java
+public class SendMessages {
+    
+    //attributes
+    private EmailNotifications emailNotifications; //essa class depende dessa Class "EmailNotifications"
+    private SmsNotifications smsNotifications; //essa class depende dessa Class "SmsNotifications"
+    private PhoneCall phoneCall; //essa class depende dessa Class "phoneCall"
+
+    //constructors
+    public SendMessages(){
+        this.emailNotifications = new EmailNotifications();
+        this.smsNotifications = new SmsNotifications();
+        this.phoneCall = new PhoneCall();
+    }
+
+    //methods
+    public void enviarMensagemCompleta(String messageType){
+        System.out.println("Nova mensagem enviada!");
+
+        if(messageType.equals("SMS")){
+            System.out.println("Message: " + this.smsNotifications.sendSmsMessage());
+        }
+        if(messageType.equals("EMAIL")){
+            System.out.println("Message: " + this.emailNotifications.sendEmailMessage());
+        }
+        if(messageType.equals("PHONE")){
+            System.out.println("Message: " + this.phoneCall.call());
+        }
+    }
+}
+```
+
+Para evitar essa dependencia de attributes, vamos utilizar o **dependency inversion principle**.
+
+<br>
+
+### Utilizando o principle
+
+1. Criamos uma interface. Assim, **a class responsavel por enviar as messages vai ser dependente apenas da interface** e não de TODAS aquelas classes.
+
+
+    ```java
+    public interface Notifications {
+        
+        public String defaultMessage();
+    }
+    ```
+
+<br>
+
+2. Implementamos essa interface nas nossas classes de notificacao
+
+    ```java
+    public class EmailNotifications implements Notifications{
+
+        @Override
+        public String defaultMessage() {
+            return "Email notification insane!";
+        }
+    }
+
+
+    public class SmsNotifications implements Notifications{
+
+        @Override
+        public String defaultMessage() {
+            return "SMS notification insane!";
+        }
+    }
+
+
+    public class PhoneCall implements Notifications{
+
+        @Override
+        public String defaultMessage() {
+            return "PHONE notification insane!";
+        }
+    }
+    ```
+
+<br>
+
+3. Agora sim, nossa classe vai depender apenas da interface
+
+    ```java
+    public class SendMessages {
+        
+        //attributes
+        private Notifications notification; //dependemos apenas dessa interface
+
+        //constructors
+        public SendMessages(Notifications notification){
+            this.notification = notification;
+        }
+
+        //methods
+        public void enviarMensagemCompleta(){
+            System.out.println(this.notification.defaultMessage());
+        }
+    }
+    ```
+
+    📖 Olha a diferença! Aqui, dependemos apenas da interface. Nós **invertemos o tipo de dependencia**. Agora, dependemos apenas de uma interface.
+
+<br>
+
+4. Se quiséssemos enviar as mensagens, ficaria assim:
+
+    ```java
+    public class App {
+        public static void main(String[] args){
+
+            EmailNotifications email = new EmailNotifications();
+            SmsNotifications sms = new SmsNotifications();
+            PhoneCall phone = new PhoneCall();
+
+            SendMessages sendEmailMessage = new SendMessages(email);
+            sendEmailMessage.enviarMensagemCompleta();
+
+            SendMessages sendSmsMessage = new SendMessages(sms);
+            sendSmsMessage.enviarMensagemCompleta();
+
+            SendMessages sendPhoneMessage = new SendMessages(phone);
+            sendPhoneMessage.enviarMensagemCompleta();
+        }
+    }
+    ```
